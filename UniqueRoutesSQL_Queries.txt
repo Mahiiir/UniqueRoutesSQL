@@ -1,0 +1,41 @@
+CREATE TABLE travel
+
+SELECT * FROM travel
+
+INSERT INTO travel (source, destination, distance)
+VALUES
+('Mumbai', 'Banglore', 500),
+('Banglore', 'Mumbai', 500),
+('Delhi', 'Mathura', 150),
+('Mathura', 'Delhi', 150),
+('Nagpur', 'Pune', 500),
+('Pune', 'Nagpur', 500);
+
+-- Method - 1 Using GREATEST AND LEAST Function:
+
+SELECT GREATEST(source, destination) AS source, LEAST(source, destination) AS destination, max(distance) AS distnace
+FROM travel
+GROUP BY GREATEST(source, destination), LEAST(source, destination);
+
+-- Method - 2 Using Self JOIN:
+
+WITH cte AS
+(
+SELECT *, ROW_NUMBER() OVER() AS SNo
+FROM travel
+)
+SELECT t1.*
+FROM cte As t1
+JOIn cte AS t2
+ON t1.source = t2.destination
+AND t1.SNo < t2.SNo
+
+-- Method - 3 Using SUBQUERY:
+
+SELECT *
+FROM travel t1
+WHERE NOT EXISTS (SELECT * FROM travel t2
+			WHERE t1.source = t2.destination
+			AND t2.source = t1.destination
+			AND t1.destination > t2.destination
+			)
